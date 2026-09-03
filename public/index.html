@@ -1,0 +1,1417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="description" content="Set up a local Solana development environment from nothing to a deployed program. Ten checkpoints, verification commands, a ranked troubleshooting list, and a real run log from a Windows machine." />
+<meta name="color-scheme" content="light dark" />
+<title>Solana Local Setup · Guide 01</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+<link rel="stylesheet" href="./styles.css" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%239945FF'/%3E%3Cstop offset='1' stop-color='%2314F195'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='24' fill='url(%23g)'/%3E%3C/svg%3E" />
+</head>
+<body>
+
+<div id="readbar"></div>
+<canvas id="confetti"></canvas>
+
+<!-- ============ TOP BAR ============ -->
+<div class="topbar">
+  <a class="brand" href="#top"><span class="mark"></span> Solana Fall School · Guide 01</a>
+  <span class="spacer"></span>
+  <button class="tbtn" id="palbtn" type="button">Jump to… <kbd>⌘K</kbd></button>
+  <button class="tbtn" id="themebtn" type="button">◐ System</button>
+</div>
+
+<!-- ============ MASTHEAD ============ -->
+<header class="masthead" id="top">
+  <div class="aurora"><span></span><span></span><span></span></div>
+  <div class="grain"></div>
+  <div class="masthead-inner">
+    <p class="kicker">Solana Fall School · Guide 01</p>
+    <h1>Get your machine <em>ready</em> to ship a program.</h1>
+    <p class="standfirst">
+      Install four tools, prove each one works, then put Monday's lecture to
+      work: send a real transaction, derive a PDA, and deploy a real program.
+      Everything here is hands-on practice for material you have already been
+      taught.
+    </p>
+    <dl class="facts">
+      <div class="fact"><dt>Time</dt><dd>60–90 min</dd></div>
+      <div class="fact"><dt>OS</dt><dd>macOS · Linux · WSL</dd></div>
+      <div class="fact"><dt>Networks</dt><dd>Localnet · Devnet</dd></div>
+      <div class="fact"><dt>Checkpoints</dt><dd>10</dd></div>
+    </dl>
+  </div>
+</header>
+
+<div class="shell">
+
+  <!-- ============ RAIL ============ -->
+  <nav class="rail" aria-label="Checkpoints">
+    <svg width="0" height="0" style="position:absolute">
+      <defs>
+        <linearGradient id="ringgrad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#9945FF" />
+          <stop offset="1" stop-color="#14F195" />
+        </linearGradient>
+      </defs>
+    </svg>
+
+    <p class="rail-title">Progress</p>
+
+    <div class="ring-wrap">
+      <svg class="ring" viewBox="0 0 46 46" aria-hidden="true">
+        <circle class="track" cx="23" cy="23" r="19"></circle>
+        <circle class="fill" cx="23" cy="23" r="19"></circle>
+      </svg>
+      <div class="ring-meta">
+        <b id="ringpct">0%</b>
+        <span id="ringleft">10 to go</span>
+      </div>
+    </div>
+
+    <ol class="spine" id="spine">
+      <li><a href="#cp0" data-cp="0"><span class="node">0</span><span>Prepare your OS</span></a></li>
+      <li><a href="#cp1" data-cp="1"><span class="node">1</span><span>Install everything</span></a></li>
+      <li><a href="#cp2" data-cp="2"><span class="node">2</span><span>The manual path</span></a></li>
+      <li><a href="#cp3" data-cp="3"><span class="node">3</span><span>Pin your versions</span></a></li>
+      <li><a href="#cp4" data-cp="4"><span class="node">4</span><span>Wallet and config</span></a></li>
+      <li><a href="#cp5" data-cp="5"><span class="node">5</span><span>Send a transaction</span></a></li>
+      <li><a href="#cp6" data-cp="6"><span class="node">6</span><span>First project</span></a></li>
+      <li><a href="#cp7" data-cp="7"><span class="node">7</span><span>Derive a PDA</span></a></li>
+      <li><a href="#cp8" data-cp="8"><span class="node">8</span><span>Deploy to devnet</span></a></li>
+      <li><a href="#cp9" data-cp="9"><span class="node">9</span><span>Check your work</span></a></li>
+      <li><a href="#doctor"><span class="node">V</span><span>Verify script</span></a></li>
+      <li><a href="#trouble"><span class="node">?</span><span>Troubleshooting</span></a></li>
+      <li><a href="#runlog"><span class="node">★</span><span>Run log</span></a></li>
+    </ol>
+
+    <div class="rail-foot">
+      <span id="tally">0 of 10 done</span>
+      <button class="reset" id="reset" type="button">Reset progress</button>
+      <span style="font-size:.7rem;line-height:1.5">
+        <kbd>j</kbd>/<kbd>k</kbd> move · <kbd>/</kbd> search · <kbd>t</kbd> theme
+      </span>
+    </div>
+  </nav>
+
+  <!-- ============ DOC ============ -->
+  <article class="doc">
+
+    <!-- ============ INTRO ============ -->
+    <section id="intro">
+      <h3 style="margin-top:0">How to use this page</h3>
+      <p>
+        Work top to bottom. Every checkpoint ends with a command that prints
+        something, and the page tells you what to expect.
+      </p>
+      <p>
+        If your output does not match, stop there. A broken tool carried
+        forward throws its error three checkpoints later, pointing at the
+        wrong thing.
+      </p>
+      <p>
+        Tick each checkpoint as you go. Progress is saved in this browser, so
+        you can close the tab and come back.
+      </p>
+
+      <div class="note">
+        <span class="note-label">On Windows, install WSL first</span>
+        Anchor does not run on Windows natively, so you need Ubuntu through
+        WSL — Solana lists it as a
+        <a href="https://solana.com/docs/intro/installation#prerequisites">prerequisite</a>.
+        Checkpoint 0 covers it, or follow the
+        <a href="https://solana.com/docs/intro/installation">official installation guide</a>
+        instead.
+      </div>
+
+      <div class="runlog-cta">
+        <div>
+          <b>★ This edition ships a run log</b>
+          <p>All ten checkpoints were actually executed on a Windows 11 machine. Two broke. Both are written up with the real error text.</p>
+        </div>
+        <a class="btn-go" href="#runlog">Read the run log</a>
+      </div>
+
+      <h3>What you are actually installing</h3>
+      <p>
+        Four separate tools that people treat as one thing called "Solana".
+        Knowing which is which is most of your debugging skill for the term.
+      </p>
+
+      <div class="limits">
+        <div class="limit"><b>rustc</b><span>The Rust compiler. Your program is Rust, compiled to SBF bytecode.</span></div>
+        <div class="limit"><b>solana</b><span>The CLI from Anza. Keys, cluster config, transactions, deploys.</span></div>
+        <div class="limit"><b>anchor</b><span>The framework. Removes boilerplate, generates the client IDL.</span></div>
+        <div class="limit"><b>node</b><span>Runs the TypeScript tests and client scripts that call your program.</span></div>
+      </div>
+      <p class="muted">
+        When something breaks, name the tool first. <code>anchor build</code>
+        failing is usually rustc or a missing system library, not Anchor.
+      </p>
+
+      <h4>Where your code runs</h4>
+      <p>
+        Three networks, all running the same software. What changes is who can
+        see them and what the SOL is worth. A <strong>cluster</strong> is just
+        one of these networks — the word comes up constantly.
+      </p>
+
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th></th><th>localnet</th><th>devnet</th><th>mainnet</th></tr></thead>
+          <tbody>
+            <tr><td class="num">SOL</td><td>Free, unlimited</td><td>Faucet, rate limited</td><td>Real money</td></tr>
+            <tr><td class="num">Speed</td><td>Instant</td><td>Real network conditions</td><td>Real network conditions</td></tr>
+            <tr><td class="num">Persistence</td><td>Wiped on every restart</td><td>Persistent</td><td>Permanent</td></tr>
+            <tr><td class="num">Visible to others</td><td>No</td><td>Yes, shareable explorer link</td><td>Yes</td></tr>
+            <tr><td class="num">Use it for</td><td>~95% of development</td><td>Integration testing, demos, sharing</td><td>Production</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="note">
+        <span class="note-label">Localnet is your default, not devnet</span>
+        <p>
+          Almost all of your development time this term happens on localnet —
+          a Solana network running on your own laptop.
+        </p>
+        <p>
+          Localnet SOL is free and unlimited. No faucet, no airdrop request,
+          no waiting.
+        </p>
+        <p>
+          It is also worthless, and it cannot move to devnet or mainnet. These
+          are separate chains that share nothing.
+        </p>
+        <p>
+          Nobody else can see your localnet. That is the only reason this
+          guide touches devnet at all — devnet gives you a link other people
+          can open.
+        </p>
+        <p>
+          <code>anchor test</code> starts and stops its own local validator
+          automatically. You never manage one.
+        </p>
+      </div>
+
+      <div class="calc">
+        <div class="calc-title">◎ Lamports converter</div>
+        <div class="calc-sub">One SOL is 1,000,000,000 lamports. Every fee and rent figure on this page is quoted in one or the other, so keep this handy.</div>
+        <div class="calc-row">
+          <div class="calc-field">
+            <label for="sol-in">SOL</label>
+            <input id="sol-in" type="text" inputmode="decimal" placeholder="0.1" />
+          </div>
+          <div class="calc-eq">=</div>
+          <div class="calc-field">
+            <label for="lam-in">Lamports</label>
+            <input id="lam-in" type="text" inputmode="numeric" placeholder="100000000" />
+          </div>
+        </div>
+        <div class="calc-chips">
+          <button class="chip" type="button" data-lam="5000">5,000 — one signature fee</button>
+          <button class="chip" type="button" data-lam="100000000">100,000,000 — the checkpoint 5 transfer</button>
+          <button class="chip" type="button" data-lam="1143131832">1,143,131,832 — rent for this program</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ CP 0 ============ -->
+    <section class="cp" id="cp0">
+      <div class="cp-head">
+        <span class="cp-num">00</span>
+        <div class="cp-titles">
+          <span class="cp-eyebrow">Before anything else</span>
+          <h2>Prepare your OS</h2>
+        </div>
+      </div>
+
+      <p><strong>When you finish this:</strong> your machine has the system libraries every later step depends on.</p>
+      <p>
+        Everything after this checkpoint is identical on all three platforms.
+        Do only the block that matches your machine, then rejoin at
+        checkpoint 1.
+      </p>
+
+      <h4>Windows</h4>
+      <p>
+        Solana tooling does not run on Windows natively. WSL gives you a real
+        Ubuntu inside Windows. Run this in <strong>PowerShell as
+        administrator</strong>:
+      </p>
+<pre data-lang="powershell"><code>wsl --install</code></pre>
+      <p>
+        Reboot, then open the <strong>Ubuntu</strong> app from the Start menu
+        and set a username and password.
+      </p>
+      <p>
+        From here on, "your terminal" means that Ubuntu window, never
+        PowerShell. Run the Linux block below inside it.
+      </p>
+
+      <div class="note">
+        <span class="note-label">Where you put your project matters</span>
+        <p>Keep your code in the Linux home directory (<code>~/solana</code>), not in <code>/mnt/c/Users/...</code>.</p>
+        <p>
+          Reading Windows files from WSL crosses a filesystem boundary. A
+          <code>cargo build</code> that takes 90 seconds in <code>~</code> can take
+          ten minutes on <code>/mnt/c</code>.
+        </p>
+        <p>To edit in VS Code, install the WSL extension and open the folder from inside Ubuntu with <code>code .</code></p>
+      </div>
+
+      <h4>Linux and WSL</h4>
+      <p>
+        Anchor compiles from source and needs a C toolchain plus a few
+        libraries. Missing these is the most common install failure.
+      </p>
+<pre><code>sudo apt-get update
+sudo apt-get install -y \
+    build-essential \
+    pkg-config \
+    libudev-dev llvm libclang-dev \
+    protobuf-compiler libssl-dev</code></pre>
+
+      <div class="note">
+        <span class="note-label">If apt says protobuf-compiler is not available</span>
+        You skipped <code>apt-get update</code>. Run it and try again. On Fedora or
+        RHEL the equivalents are <code>gcc gcc-c++ pkgconf-pkg-config systemd-devel
+        llvm clang-devel protobuf-compiler openssl-devel</code>.
+      </div>
+
+      <h4>macOS</h4>
+      <p>Install Apple's command line tools, which include the linker Rust calls.</p>
+<pre><code>xcode-select --install
+xcode-select -p   <span class="c-com"># should print a path, not an error</span></code></pre>
+      <p>If they were already installed, the first line says so and the second prints a path.</p>
+
+      <div class="note warn">
+        <span class="note-label">Do not install Rust with Homebrew</span>
+        <p>Use rustup instead — the next checkpoint does it for you. A Homebrew Rust lands in a directory Anchor does not search.</p>
+        <p>The failure shows up much later as <code>No such file or directory (os error 2)</code>. If you already have one: <code>brew uninstall rust</code>.</p>
+      </div>
+
+      <label class="done-row"><input type="checkbox" data-cp="0" /> Mark checkpoint 0 complete</label>
+    </section>
+
+    <!-- ============ CP 1 ============ -->
+    <section class="cp" id="cp1">
+      <div class="cp-head">
+        <span class="cp-num">01</span>
+        <div class="cp-titles">
+          <span class="cp-eyebrow">The fast path</span>
+          <h2>Install everything</h2>
+        </div>
+      </div>
+
+      <p><strong>When you finish this:</strong> all five tools installed and printing versions.</p>
+      <p>One script installs the whole toolchain. Try it first. If it completes, skip checkpoint 2 entirely.</p>
+
+<pre><code>curl --proto '=https' --tlsv1.2 -sSfL https://solana-install.solana.workers.dev | bash</code></pre>
+
+      <p>It finishes by printing what it installed:</p>
+
+<pre data-lang="output"><code><span class="c-com">Installed Versions:</span>
+Rust: rustc <span class="c-num">1.91.1</span> (ed61e7d7e 2025-11-07)
+Solana CLI: solana-cli <span class="c-num">3.0.10</span> (src:96c3a851; feat:3604001754, client:Agave)
+Anchor CLI: anchor-cli <span class="c-num">0.32.1</span>
+Surfpool CLI: surfpool <span class="c-num">0.12.0</span>
+Node.js: v<span class="c-num">24.10.0</span>
+Yarn: <span class="c-num">1.22.1</span></code></pre>
+
+      <p class="muted">
+        Surfpool is a local validator. The installer bundles it, this guide
+        does not use it, and it comes up in a later class. Ignore it for now.
+      </p>
+
+      <div class="note warn">
+        <span class="note-label">This takes 10 to 20 minutes</span>
+        <p>Most of that is compiling the Anchor CLI from source. The terminal looks frozen and your fan gets loud. That is normal.</p>
+        <p>Do not interrupt it. If you kill it halfway, you will need checkpoint 2 to finish the job by hand.</p>
+      </div>
+
+      <p><strong>Close your terminal and open a new one.</strong> The script edited your shell profile and the current session has not read it.</p>
+      <p>Now check all five tools:</p>
+
+<pre><code>rustc --version &amp;&amp; solana --version &amp;&amp; anchor --version &amp;&amp; \
+node --version &amp;&amp; yarn --version</code></pre>
+
+      <div class="note win">
+        <span class="note-label">Five lines of output</span>
+        <p>If all five print a version, you are done. Skip checkpoint 2 and go to checkpoint 3.</p>
+        <p>If a line says <code>command not found</code>, that one tool did not land. Install just that one from checkpoint 2.</p>
+      </div>
+
+      <label class="done-row"><input type="checkbox" data-cp="1" /> Mark checkpoint 1 complete</label>
+    </section>
+
+    <!-- ============ CP 2 ============ -->
+    <section class="cp" id="cp2">
+      <div class="cp-head">
+        <span class="cp-num">02</span>
+        <div class="cp-titles">
+          <span class="cp-eyebrow">Only if checkpoint 1 failed</span>
+          <h2>The manual path</h2>
+        </div>
+      </div>
+
+      <p><strong>When you finish this:</strong> the tools checkpoint 1 missed, installed by hand.</p>
+      <p>
+        Install one at a time, in this order, verifying each before moving on.
+        Anchor depends on Rust and on the checkpoint 0 libraries, so order matters.
+      </p>
+      <p>If only one tool is missing, jump straight to that block.</p>
+
+      <h4>Rust</h4>
+<pre><code>curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+. "$HOME/.cargo/env"
+rustc --version</code></pre>
+
+      <h4>Solana CLI</h4>
+<pre><code>sh -c "$(curl -sSfL https://release.anza.xyz/stable/install)"
+solana --version</code></pre>
+
+      <details>
+        <summary><span class="tag">Aside</span> Why it says client:Agave</summary>
+        <div class="d-body">
+          <p>The CLI is built by Anza and reports itself as <code>client:Agave</code>. Same tool — the validator client was renamed.</p>
+          <p>To update it later, run <code>agave-install update</code>, which pulls the newest stable release.</p>
+        </div>
+      </details>
+
+      <details>
+        <summary><span class="tag">Hint</span> solana: command not found after installing</summary>
+        <div class="d-body">
+          <p>PATH, essentially always. The installer printed a line and you did not run it. Find your shell first, because the file differs:</p>
+<pre><code>echo $SHELL   <span class="c-com"># /bash → .bashrc,  /zsh → .zshrc</span></code></pre>
+          <p>Then append the line permanently and reload:</p>
+<pre><code>echo 'export PATH="$HOME/.local/share/solana/install/active_release/bin:$PATH"' &gt;&gt; ~/.bashrc
+source ~/.bashrc</code></pre>
+          <p>
+            Swap <code>.bashrc</code> for <code>.zshrc</code> if that is your shell. Typing
+            <code>export PATH=...</code> directly into the terminal also works, but only
+            until you close that window — which is why people think the install
+            broke overnight.
+          </p>
+        </div>
+      </details>
+
+      <h4>Node and Yarn</h4>
+      <p>Anchor's test template is TypeScript, so <code>anchor test</code> needs both.</p>
+      <p>Install Node through nvm rather than your system package manager, so you can switch versions per project.</p>
+<pre><code>curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+<span class="c-com"># restart your terminal, then:</span>
+nvm install --lts
+npm install -g yarn
+node --version &amp;&amp; yarn --version</code></pre>
+
+      <h4>Anchor, through AVM</h4>
+      <p>
+        Install the version manager, not the framework directly. Anchor makes
+        breaking changes between minor versions, and you will eventually need
+        two versions for two projects.
+      </p>
+<pre><code>curl -sSfL https://raw.githubusercontent.com/otter-sec/anchor/master/avm/install | sh
+avm --version
+
+avm install latest
+avm use latest
+anchor --version</code></pre>
+
+      <div class="note">
+        <span class="note-label">Two things people trip on here</span>
+        <p>
+          <code>avm install</code> downloads a version. <code>avm use</code> is what
+          points the <code>anchor</code> command at it. Skip the second and
+          <code>anchor --version</code> keeps reporting the old one.
+        </p>
+        <p>This build takes several minutes and needs the checkpoint 0 libraries. <code>could not exec the linker cc</code> means you skipped them.</p>
+      </div>
+
+      <div class="note warn">
+        <span class="note-label">TODO — author: verify this URL before publishing</span>
+        <p>
+          The AVM installer URL has moved between repositories more than once.
+          Check the line above against
+          <a href="https://solana.com/docs/intro/installation/dependencies">solana.com/docs/intro/installation/dependencies</a>
+          and update it before this guide is published.
+        </p>
+        <p>Students: opening that page to confirm a URL before piping any script into your shell is a habit worth more than this guide.</p>
+      </div>
+
+      <label class="done-row"><input type="checkbox" data-cp="2" /> Mark checkpoint 2 complete</label>
+    </section>
+
+    <!-- ============ CP 3 ============ -->
+    <section class="cp" id="cp3">
+      <div class="cp-head">
+        <span class="cp-num">03</span>
+        <div class="cp-titles">
+          <span class="cp-eyebrow">Class baseline</span>
+          <h2>Pin your versions</h2>
+        </div>
+      </div>
+
+      <p><strong>When you finish this:</strong> your versions match the rest of the class.</p>
+      <p>
+        Solana tooling moves fast enough that a three-month-old blog post is
+        often wrong. When forty people debug together, mismatched versions
+        waste more time than any real bug.
+      </p>
+      <p>Get onto these versions. If you cannot, say so in the channel <em>before</em> you ask for help.</p>
+
+      <div class="note warn">
+        <span class="note-label">TODO — author: confirm these pins before publishing</span>
+        The versions in the table below need to be checked against what the
+        class is actually standardised on this term.
+      </div>
+
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Tool</th><th>Check</th><th>We are on</th><th>Fix a mismatch</th></tr></thead>
+          <tbody>
+            <tr><td class="num">Rust</td><td class="num">rustc --version</td><td class="num">1.91.x</td><td class="num">rustup update stable</td></tr>
+            <tr><td class="num">Solana</td><td class="num">solana --version</td><td class="num">3.0.x</td><td class="num">agave-install update</td></tr>
+            <tr><td class="num">Anchor</td><td class="num">anchor --version</td><td class="num">0.32.1</td><td class="num">avm install 0.32.1 &amp;&amp; avm use 0.32.1</td></tr>
+            <tr><td class="num">Node</td><td class="num">node --version</td><td class="num">22 or 24</td><td class="num">nvm install --lts</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>A patch-level difference is fine. A minor-version difference in Anchor is not.</p>
+      <p><code>0.31</code> and <code>0.32</code> generate different client code, and code from one will not compile against the other.</p>
+
+      <div class="note">
+        <span class="note-label">Save this line</span>
+        Start any help request with the output of the verify script at the
+        bottom of this page. Half the replies you would otherwise get are
+        "what version are you on".
+      </div>
+
+      <label class="done-row"><input type="checkbox" data-cp="3" /> Mark checkpoint 3 complete</label>
+    </section>
+
+    <!-- ============ CP 4 ============ -->
+    <section class="cp" id="cp4">
+      <div class="cp-head">
+        <span class="cp-num">04</span>
+        <div class="cp-titles">
+          <span class="cp-eyebrow">Keys and clusters</span>
+          <h2>Wallet and config</h2>
+        </div>
+      </div>
+
+      <p><span class="tag">Network</span> <strong>devnet</strong></p>
+
+      <p><strong>When you finish this:</strong> a wallet with about 5 devnet SOL in it, and a CLI pointed at devnet.</p>
+      <p>The CLI keeps one small config file. It decides which network your commands talk to and which keypair signs them.</p>
+      <p>Almost every "it worked yesterday" story is one of those two being different from what you assumed. Look at it first:</p>
+
+<pre><code>solana config get</code></pre>
+
+      <p>You should see something like this:</p>
+
+<pre data-lang="output"><code>Config File: /Users/you/.config/solana/cli/config.yml
+RPC URL: https://api.mainnet.solana.com
+WebSocket URL: wss://api.mainnet.solana.com/ (computed)
+Keypair Path: /Users/you/.config/solana/id.json
+Commitment: confirmed</code></pre>
+
+      <h4>Point at devnet</h4>
+      <p>Switch the network your commands talk to:</p>
+<pre><code>solana config set --url devnet
+solana config get   <span class="c-com"># confirm the RPC URL now says devnet</span></code></pre>
+      <p>The RPC URL should now say devnet. Check it before you blame your code — this one line explains a lot of confusing errors.</p>
+
+      <details>
+        <summary><span class="tag">Aside</span> Short forms for switching cluster</summary>
+        <div class="d-body">
+          <p>
+            <code>solana config set -ud</code> does the same thing as
+            <code>--url devnet</code>. <code>-um</code> switches to mainnet and
+            <code>-ul</code> switches to your local machine.
+          </p>
+        </div>
+      </details>
+
+      <h4>Create a keypair</h4>
+      <p>Write a new keypair to the default path:</p>
+<pre><code>solana-keygen new
+solana address</code></pre>
+      <p>It prints a public key and a twelve-word seed phrase. That public key is your address on every Solana network at once.</p>
+
+      <div class="note">
+        <span class="note-label">Treat this key as disposable, and never commit it</span>
+        <p><code>id.json</code> is an unencrypted private key sitting on disk. Fine for a course where it only holds test SOL. Not fine for anything with value.</p>
+        <p>It must never reach GitHub. A bot will find it within minutes and drain it.</p>
+        <p>
+          Anchor's <code>.gitignore</code> covers <code>target/deploy/*.json</code>. If
+          you copy a keypair anywhere else in the repo, add that path yourself.
+          Never reuse this key on mainnet.
+        </p>
+      </div>
+
+      <h4>Get devnet SOL from the faucet</h4>
+      <p>Do this now, at the start. Four steps:</p>
+      <ol>
+        <li>Go to <a href="https://faucet.solana.com">faucet.solana.com</a>.</li>
+        <li><strong>Sign in with GitHub.</strong> This unlocks the higher limit of <strong>5 SOL</strong>. The faucet works signed out, but gives you less than the checkpoint 8 deploy needs.</li>
+        <li>Paste in the address that <code>solana address</code> printed.</li>
+        <li>Confirm it landed.</li>
+      </ol>
+
+<pre><code>solana balance</code></pre>
+      <p>You want to see roughly 5 SOL.</p>
+
+      <div class="note warn">
+        <span class="note-label">Fund your wallet now, not before the deploy</span>
+        <p>Faucet requests are rate limited with a cooldown between them.</p>
+        <p>If you reach checkpoint 8 short of SOL, you may be waiting hours to top up. Get your 5 SOL at the start and the rest of the guide never blocks.</p>
+      </div>
+
+      <div class="note">
+        <span class="note-label">If GitHub sign-in is refused</span>
+        The faucet verifies GitHub accounts, and very new accounts are
+        occasionally refused. Post your address in the course Discord and a TA
+        will send you devnet SOL directly.
+      </div>
+
+      <label class="done-row"><input type="checkbox" data-cp="4" /> Mark checkpoint 4 complete</label>
+    </section>
+
+    <!-- ============ CP 5 ============ -->
+    <section class="cp" id="cp5">
+      <div class="cp-head">
+        <span class="cp-num">05</span>
+        <div class="cp-titles">
+          <span class="cp-eyebrow">Transaction lifecycle</span>
+          <h2>Send a transaction</h2>
+        </div>
+      </div>
+
+      <p><span class="tag">Network</span> <strong>devnet</strong></p>
+
+      <p><strong>When you finish this:</strong> a confirmed transaction you can open in the explorer.</p>
+      <p>Send a transaction yourself, then read back what the network recorded.</p>
+      <p>This runs on devnet because you need a link other people can open. The whole thing costs 5000 lamports — essentially nothing.</p>
+
+      <h4>Make somewhere to send it</h4>
+      <p>Create a second keypair to receive the transfer:</p>
+<pre><code>solana-keygen new --no-bip39-passphrase --silent -o ~/throwaway.json
+solana address -k ~/throwaway.json</code></pre>
+      <p>It prints the throwaway address.</p>
+
+      <h4>Send</h4>
+      <p>Transfer 0.1 SOL to it:</p>
+<pre><code>solana transfer $(solana address -k ~/throwaway.json) 0.1 --allow-unfunded-recipient</code></pre>
+      <p>You get back a <strong>signature</strong> — a long base58 string. Copy it.</p>
+      <p>That signature is the transaction's identity. It exists because your keypair signed the message; the network did not assign it.</p>
+      <p>Now ask the network what happened:</p>
+<pre><code>solana confirm -v &lt;YOUR_SIGNATURE&gt;</code></pre>
+
+      <h4>Read what you just did</h4>
+      <p>Open the signature in the explorer. Keep the cluster parameter on the end.</p>
+<pre data-lang="url"><code>https://explorer.solana.com/tx/&lt;YOUR_SIGNATURE&gt;?cluster=devnet</code></pre>
+
+      <p>Match what you see on the page against the terms below:</p>
+
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>What you see</th><th>What it is</th></tr></thead>
+          <tbody>
+            <tr><td class="num">Signature</td><td>The transaction ID, produced by signing rather than assigned</td></tr>
+            <tr><td class="num">Fee payer</td><td>The first signer. Pays whether or not the transaction succeeds</td></tr>
+            <tr><td class="num">Fee</td><td>5,000 lamports per signature, taken up front</td></tr>
+            <tr><td class="num">Instructions</td><td>One call to the System Program. Programs do the work; a transaction just carries instructions</td></tr>
+            <tr><td class="num">Account inputs</td><td>Every account the instruction touches, listed in advance and marked writable or read-only</td></tr>
+            <tr><td class="num">Slot</td><td>Which block a validator packed it into</td></tr>
+            <tr><td class="num">Status</td><td>Processed, then confirmed, then finalized — three levels of "it happened"</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="note">
+        <span class="note-label">The idea behind what you just did</span>
+        <p>A Solana transaction declares every account it will read or write <em>before</em> it runs.</p>
+        <p>That one constraint is why the runtime can execute unrelated transactions in parallel. It also explains most of what looks like boilerplate in an Anchor program.</p>
+        <p>You just sent the simplest possible example of it.</p>
+      </div>
+
+      <details>
+        <summary><span class="tag">Hint</span> Transaction simulation failed: insufficient funds</summary>
+        <div class="d-body">
+          <p>Check <code>solana balance</code> and <code>solana config get</code>.</p>
+          <p>Either the faucet SOL never landed, or you are pointed at a cluster where your wallet is empty.</p>
+          <p>Same fix for both: confirm the RPC URL, then fund the address that <code>solana address</code> prints.</p>
+        </div>
+      </details>
+
+      <details id="helius">
+        <summary><span class="tag sol">Optional</span> If devnet's public RPC is throwing errors</summary>
+        <div class="d-body">
+          <p>The default public devnet RPC is shared by everyone and rate limited. Deploys hit it hardest, sending many transactions in quick succession.</p>
+          <p>If you see 429 errors or timeouts, get a free devnet endpoint from Helius and point your CLI at it:</p>
+<pre><code>solana config set --url &lt;your-helius-devnet-url&gt;</code></pre>
+          <p>This is a fallback, not a required step. Skip it unless the public RPC is actually failing on you.</p>
+        </div>
+      </details>
+
+      <label class="done-row"><input type="checkbox" data-cp="5" /> Mark checkpoint 5 complete</label>
+    </section>
+
+    <!-- ============ CP 6 ============ -->
+    <section class="cp" id="cp6">
+      <div class="cp-head">
+        <span class="cp-num">06</span>
+        <div class="cp-titles">
+          <span class="cp-eyebrow">Scaffold and build</span>
+          <h2>First project</h2>
+        </div>
+      </div>
+
+      <p><span class="tag sol">Network</span> <strong>localnet</strong> — no SOL needed</p>
+
+      <p><strong>When you finish this:</strong> a generated Anchor project that builds and passes its test.</p>
+      <p>Anchor generates a working program, a test, and the config that ties them together.</p>
+      <p>Everything here runs on your own machine. <code>anchor test</code> handles the network itself, so there is no faucet and no SOL involved.</p>
+      <p>Do this somewhere sensible — on WSL, inside your Linux home directory:</p>
+
+<pre><code>mkdir -p ~/solana &amp;&amp; cd ~/solana
+anchor init hello_solana
+cd hello_solana</code></pre>
+
+      <h4>What it made</h4>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Path</th><th>What it holds</th><th>You edit it?</th></tr></thead>
+          <tbody>
+            <tr><td class="num">programs/hello_solana/src/lib.rs</td><td>The on-chain program</td><td>Constantly</td></tr>
+            <tr><td class="num">tests/hello_solana.ts</td><td>TypeScript tests that call it</td><td>Constantly</td></tr>
+            <tr><td class="num">Anchor.toml</td><td>Cluster, wallet, program IDs</td><td>Sometimes</td></tr>
+            <tr><td class="num">target/deploy/</td><td>Compiled <code>.so</code> and the program keypair</td><td>Never by hand</td></tr>
+            <tr><td class="num">target/idl/</td><td>Generated interface the client reads</td><td>Never by hand</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>Open <code>lib.rs</code> and read it before building. It is about fifteen lines: a program ID, one instruction, one log.</p>
+      <p>
+        The instruction takes a <code>Context</code> listing its accounts — the same
+        up-front account declaration you saw in the explorer at checkpoint 5.
+        Everything you write this term is a variation on that shape.
+      </p>
+
+      <h4>Build it</h4>
+      <p>Compile the program to SBF bytecode:</p>
+<pre><code>anchor build</code></pre>
+      <p>Expect no output for a long time. That is normal.</p>
+
+      <div class="note">
+        <span class="note-label">The first build takes 5 to 15 minutes</span>
+        It compiles the entire dependency tree from source. Later builds take
+        seconds. Do not cancel it just because nothing is printing.
+      </div>
+
+      <p>Building also generates a keypair for your program. Its public key is the program ID.</p>
+      <p>That ID appears in two text files as well, and they start out disagreeing with the keypair. Sync them:</p>
+<pre><code>anchor keys sync
+anchor keys list</code></pre>
+      <p>Both should now print the same program ID.</p>
+
+      <details>
+        <summary><span class="tag">Hint</span> Why a program has its own keypair</summary>
+        <div class="d-body">
+          <p>
+            A program on Solana lives in an account like everything else, and
+            that account needs an address. <code>anchor build</code> generates one at
+            <code>target/deploy/hello_solana-keypair.json</code>. The address is baked
+            into your compiled binary through the <code>declare_id!</code> macro, so if
+            <code>lib.rs</code> claims one ID and the deployed account sits at another,
+            every instruction fails with <code>DeclaredProgramIdMismatch</code>.
+          </p>
+          <p>
+            <code>anchor keys sync</code> rewrites <code>declare_id!</code> and
+            <code>Anchor.toml</code> to match the keypair. Run it after your first build
+            and any time you clone someone else's repo.
+          </p>
+        </div>
+      </details>
+
+      <h4>Test it</h4>
+      <p>Build, deploy locally, and run the TypeScript tests:</p>
+<pre><code>anchor test</code></pre>
+      <p>You should see one passing test and a transaction signature.</p>
+      <p>
+        That single command started a disposable network on your machine,
+        deployed to it, ran the tests, then tore the network down. You never
+        start or stop anything yourself.
+      </p>
+
+      <div class="note win">
+        <span class="note-label">Target output</span>
+        One passing test means Rust, the Solana CLI, Anchor, and Node all
+        worked together. That is the whole point of this guide.
+      </div>
+
+      <details>
+        <summary><span class="tag sol">Optional · 5 min</span> See the validator that anchor test hides</summary>
+        <div class="d-body">
+          <p>
+            <code>anchor test</code> starts and stops a local validator for you, so
+            you never see one. Run it yourself once to see what is actually
+            happening, and to meet <code>solana logs</code> — the real debugging tool
+            for Solana work.
+          </p>
+          <p>Start a validator in a second terminal and leave it running:</p>
+<pre><code>solana-test-validator          <span class="c-com"># leave this running</span>
+solana config set --url localhost
+solana airdrop 100
+solana balance</code></pre>
+          <p>100 SOL, instantly. No GitHub sign-in, no cooldown, no faucet page. Compare that to what you just went through on devnet.</p>
+          <p>Now open a third terminal and watch the network:</p>
+<pre><code>solana logs</code></pre>
+          <p>Every <code>msg!</code> your program prints shows up here live. This is how you debug a program that is misbehaving.</p>
+
+          <h4>Clean up — not optional</h4>
+          <p>Point your CLI back at devnet and stop the validator:</p>
+<pre><code>solana config set --url devnet
+pkill -f solana-test-validator</code></pre>
+
+          <div class="note warn">
+            <span class="note-label">Skip the cleanup and checkpoint 8 breaks</span>
+            <p>A validator left running holds port 8899.</p>
+            <p>The next <code>anchor test</code> then fails with a port-in-use error that looks nothing like its actual cause, and you will lose time hunting the wrong problem.</p>
+          </div>
+        </div>
+      </details>
+
+      <label class="done-row"><input type="checkbox" data-cp="6" /> Mark checkpoint 6 complete</label>
+    </section>
+
+    <!-- ============ CP 7 ============ -->
+    <section class="cp" id="cp7">
+      <div class="cp-head">
+        <span class="cp-num">07</span>
+        <div class="cp-titles">
+          <span class="cp-eyebrow">Program derived addresses</span>
+          <h2>Derive a PDA</h2>
+        </div>
+      </div>
+
+      <p><span class="tag sol">Network</span> <strong>localnet</strong> — nothing to fund</p>
+
+      <p><strong>When you finish this:</strong> a PDA you derived yourself, and proof that deriving is not creating.</p>
+      <p>A PDA is an address computed from a program ID plus some seeds. It has no private key, which is exactly why programs use it to own state.</p>
+      <p>Deriving one is pure local maths. No network, no SOL, nothing to fund.</p>
+
+      <p>In your <code>hello_solana</code> directory, create <code>pda.js</code>:</p>
+
+<pre data-lang="javascript"><code><span class="c-key">const</span> { PublicKey } = <span class="c-fn">require</span>(<span class="c-str">"@coral-xyz/anchor"</span>).web3;
+
+<span class="c-key">const</span> programId = <span class="c-key">new</span> <span class="c-fn">PublicKey</span>(process.argv[<span class="c-num">2</span>]);
+<span class="c-key">const</span> seed = process.argv[<span class="c-num">3</span>] ?? <span class="c-str">"counter"</span>;
+
+<span class="c-key">const</span> [pda, bump] = PublicKey.<span class="c-fn">findProgramAddressSync</span>(
+  [Buffer.<span class="c-fn">from</span>(seed)],
+  programId
+);
+
+console.<span class="c-fn">log</span>(<span class="c-str">"program"</span>, programId.<span class="c-fn">toBase58</span>());
+console.<span class="c-fn">log</span>(<span class="c-str">"seed   "</span>, seed);
+console.<span class="c-fn">log</span>(<span class="c-str">"pda    "</span>, pda.<span class="c-fn">toBase58</span>());
+console.<span class="c-fn">log</span>(<span class="c-str">"bump   "</span>, bump);</code></pre>
+
+      <p>Run it with your own program ID from <code>anchor keys list</code>:</p>
+<pre><code>node pda.js &lt;YOUR_PROGRAM_ID&gt; counter</code></pre>
+
+      <h4>Three things to try</h4>
+      <ol>
+        <li>Run it twice with the same seed. Same address, every time, on every machine. Nothing was stored anywhere — the address is <em>computed</em>.</li>
+        <li>Change the seed to <code>vault</code>. Completely different address, from the same program. This is how one program keeps thousands of separate accounts without tracking a single keypair.</li>
+        <li>Look up the address you derived. It does not exist:</li>
+      </ol>
+
+<pre><code>solana account &lt;THE_PDA&gt;   <span class="c-com"># Error: AccountNotFound</span></code></pre>
+
+      <div class="note">
+        <span class="note-label">Deriving is not creating</span>
+        <p>You just computed an address that nobody owns and nothing occupies.</p>
+        <p>Making it a real account takes a transaction where the program allocates space and pays rent — a one-off deposit for storing data on chain, refunded when the account closes.</p>
+        <p>In Anchor that becomes the <code>seeds</code> and <code>bump</code> constraints on an <code>init</code> account. The address existed before the account did.</p>
+      </div>
+
+      <details>
+        <summary><span class="tag">Hint</span> What the bump is for</summary>
+        <div class="d-body">
+          <p>
+            Roughly half of all seed-and-program-ID combinations land on the
+            Ed25519 curve, meaning a private key could exist for them — useless
+            for a program-owned address. So the derivation appends one extra
+            byte, the bump, and counts down from 255 until the result falls off
+            the curve.
+          </p>
+          <p>
+            <code>findProgramAddressSync</code> returns the first value that works.
+            That one is called the <strong>canonical bump</strong> — the bump
+            everyone agrees to use for a given set of seeds.
+          </p>
+          <p>
+            Programs should always use it. A program that accepts any bump has
+            effectively created several valid addresses for the same seeds,
+            which is a real class of exploit.
+          </p>
+        </div>
+      </details>
+
+      <details>
+        <summary><span class="tag">Hint</span> Cannot find module '@coral-xyz/anchor'</summary>
+        <div class="d-body">
+          <p>You are outside the project directory, or dependencies never installed. From <code>~/solana/hello_solana</code>, run <code>yarn install</code> and try again.</p>
+        </div>
+      </details>
+
+      <label class="done-row"><input type="checkbox" data-cp="7" /> Mark checkpoint 7 complete</label>
+    </section>
+
+    <!-- ============ CP 8 ============ -->
+    <section class="cp" id="cp8">
+      <div class="cp-head">
+        <span class="cp-num">08</span>
+        <div class="cp-titles">
+          <span class="cp-eyebrow">A real network</span>
+          <h2>Deploy to devnet</h2>
+        </div>
+      </div>
+
+      <p><span class="tag">Network</span> <strong>devnet</strong> — this is the expensive step</p>
+
+      <p><strong>When you finish this:</strong> your program live on devnet, visible in the explorer.</p>
+      <p>Same program as checkpoint 6, but a network you do not control. It costs real devnet SOL and takes a minute rather than a second.</p>
+      <p>Follow these six steps in order. Do not skip step 4.</p>
+
+      <h4>1 · Check where you are and what you have</h4>
+<pre><code>solana config get       <span class="c-com"># RPC URL must say devnet</span>
+solana balance          <span class="c-com"># need at least 3 SOL</span></code></pre>
+      <p>Short on SOL? Go back to checkpoint 4 and use the faucet before you continue.</p>
+
+      <h4>2 · Point Anchor at devnet</h4>
+      <p>Edit <code>Anchor.toml</code>:</p>
+<pre data-lang="toml"><code><span class="c-com">[provider]</span>
+cluster = <span class="c-str">"devnet"</span>
+wallet = <span class="c-str">"~/.config/solana/id.json"</span></code></pre>
+
+      <h4>3 · Build</h4>
+<pre><code>anchor build</code></pre>
+      <p>This should take seconds — you already built once.</p>
+
+      <h4>4 · Preview the cost before you spend it</h4>
+      <p>Ask what storing the compiled program will cost:</p>
+<pre><code>solana rent $(wc -c &lt; target/deploy/hello_solana.so)</code></pre>
+      <p>Expect a figure in the region of 2 to 3 SOL for a small Anchor program.</p>
+      <p>Two things make it that high. Solana allocates roughly double your binary size, leaving room to upgrade the program later.</p>
+      <p>The deploy also creates <strong>buffer accounts</strong> — temporary accounts that hold your program's bytes while they upload. They cost SOL too.</p>
+
+      <h4>5 · Deploy</h4>
+<pre><code>anchor deploy</code></pre>
+      <p>It prints your program ID when it succeeds.</p>
+
+      <h4>6 · If the deploy failed, run this before retrying</h4>
+<pre><code>solana program close --buffers</code></pre>
+
+      <div class="note warn">
+        <span class="note-label">Do not just run anchor deploy again</span>
+        <p>A failed deploy leaves buffer accounts holding your SOL.</p>
+        <p>Retry without closing them and you will run out of SOL with nothing deployed — and then you are waiting on the faucet cooldown.</p>
+        <p>Close the buffers, check <code>solana balance</code>, then retry.</p>
+      </div>
+
+      <h4>See it on the network</h4>
+      <p>Open your program ID in the explorer, keeping the cluster on the URL:</p>
+<pre><code>https://explorer.solana.com/address/&lt;PROGRAM_ID&gt;?cluster=devnet
+solana program show &lt;PROGRAM_ID&gt;</code></pre>
+      <p>
+        Your program is now an account on a public network, owned by the BPF
+        loader, holding your compiled bytecode. Same account model as
+        everything else you have touched today.
+      </p>
+
+      <div class="note">
+        <span class="note-label">Forgetting ?cluster=devnet</span>
+        <p>This is the single most common source of confusion here. Without it, the explorer looks on mainnet, finds nothing, and says the account does not exist.</p>
+        <p>Your deploy was fine. This costs people about twenty minutes each, once.</p>
+      </div>
+
+      <h4>Clean up when you are done</h4>
+      <p>Close the program to reclaim most of the SOL:</p>
+<pre><code>solana program close &lt;PROGRAM_ID&gt; --bypass-warning
+solana program close --buffers   <span class="c-com"># reclaims leftovers from failed deploys</span></code></pre>
+      <p>Have a look at it in the explorer first — closing is irreversible.</p>
+
+      <details>
+        <summary><span class="tag sol">Optional</span> If devnet's public RPC is throwing errors</summary>
+        <div class="d-body">
+          <p>Deploys hit the shared public RPC hard, sending many transactions in quick succession. 429 errors and timeouts here are common.</p>
+          <p>If that happens, get a free devnet endpoint from Helius and point your CLI at it, then retry from step 1:</p>
+<pre><code>solana config set --url &lt;your-helius-devnet-url&gt;</code></pre>
+          <p>Optional fallback. Only bother if the public RPC is failing on you.</p>
+        </div>
+      </details>
+
+      <label class="done-row"><input type="checkbox" data-cp="8" /> Mark checkpoint 8 complete</label>
+    </section>
+
+    <!-- ============ CP 9 ============ -->
+    <section class="cp" id="cp9">
+      <div class="cp-head">
+        <span class="cp-num">09</span>
+        <div class="cp-titles">
+          <span class="cp-eyebrow">Wrap up</span>
+          <h2>Check your work</h2>
+        </div>
+      </div>
+
+      <p><strong>When you finish this:</strong> confidence that every piece actually works.</p>
+      <p>Run through these five yourself before you close the tab:</p>
+
+      <ol>
+        <li>The verify script below runs clean.</li>
+        <li>Your <code>anchor test</code> run shows the test passing.</li>
+        <li>Your transfer signature from checkpoint 5 opens in the explorer.</li>
+        <li>Your devnet program ID opens in the explorer, with <code>?cluster=devnet</code>.</li>
+        <li>You can say in a couple of sentences what broke and how you fixed it. If nothing broke, say why the PDA in checkpoint 7 had no account behind it.</li>
+      </ol>
+
+      <div class="note">
+        <span class="note-label">Point five is the one that matters</span>
+        The install is worth nothing on its own — a script did most of it. What
+        sticks is being able to describe a failure precisely enough for another
+        person to act on it. Write yours down somewhere while it is fresh.
+      </div>
+
+      <label class="done-row"><input type="checkbox" data-cp="9" /> Mark checkpoint 9 complete</label>
+    </section>
+
+    <!-- ============ VERIFY ============ -->
+    <section class="cp" id="doctor">
+      <div class="cp-head">
+        <span class="cp-num" style="background:var(--green-wash);border-color:var(--green);color:var(--green)">V</span>
+        <div class="cp-titles">
+          <span class="cp-eyebrow">Copy this whole block</span>
+          <h2>Verify script</h2>
+        </div>
+      </div>
+
+      <p>
+        Paste this into your terminal. It prints one line per tool, marking
+        each present or missing, then shows your current cluster and wallet.
+        Run it before asking for help, and paste the output with your question.
+      </p>
+
+<pre><code><span class="c-com">#!/usr/bin/env bash</span>
+<span class="c-com"># solana-doctor — checks the toolchain for Solana Fall School</span>
+
+<span class="c-key">for</span> t <span class="c-key">in</span> rustc cargo solana anchor avm node yarn; <span class="c-key">do</span>
+  <span class="c-key">if</span> <span class="c-fn">command</span> -v <span class="c-str">"$t"</span> &gt;/dev/null 2&gt;&amp;1; <span class="c-key">then</span>
+    <span class="c-fn">printf</span> <span class="c-str">'ok   %-7s %s\n'</span> <span class="c-str">"$t"</span> <span class="c-str">"$("$t" --version 2&gt;/dev/null | head -1)"</span>
+  <span class="c-key">else</span>
+    <span class="c-fn">printf</span> <span class="c-str">'MISS %-7s not on PATH\n'</span> <span class="c-str">"$t"</span>
+  <span class="c-key">fi</span>
+<span class="c-key">done</span>
+
+<span class="c-fn">echo</span>
+solana config get 2&gt;/dev/null | grep -E <span class="c-str">'RPC URL|Keypair Path'</span>
+<span class="c-fn">echo</span> <span class="c-str">"address: $(solana address 2&gt;/dev/null || echo 'no keypair yet')"</span>
+<span class="c-fn">echo</span> <span class="c-str">"balance: $(solana balance 2&gt;/dev/null || echo 'unreachable')"</span></code></pre>
+
+      <p>
+        Healthy output has seven <code>ok</code> lines, an RPC URL pointing at devnet,
+        and a balance. Any <code>MISS</code> line names the tool to reinstall from
+        checkpoint 2 — and only that tool.
+      </p>
+
+      <details>
+        <summary><span class="tag sol">Optional</span> Keep it as a command</summary>
+        <div class="d-body">
+          <p>Save it once and call it by name whenever something feels off:</p>
+<pre><code>mkdir -p ~/bin
+<span class="c-com"># paste the script into ~/bin/solana-doctor, then:</span>
+chmod +x ~/bin/solana-doctor
+echo 'export PATH="$HOME/bin:$PATH"' &gt;&gt; ~/.bashrc
+source ~/.bashrc
+solana-doctor</code></pre>
+        </div>
+      </details>
+    </section>
+
+    <!-- ============ TROUBLESHOOTING ============ -->
+    <section class="cp" id="trouble">
+      <div class="cp-head">
+        <span class="cp-num" style="background:var(--amber-wash);border-color:var(--amber);color:var(--amber)">?</span>
+        <div class="cp-titles">
+          <span class="cp-eyebrow">When it breaks</span>
+          <h2>Troubleshooting</h2>
+        </div>
+      </div>
+
+      <p>Ranked by how often it actually happens in a room of forty people.</p>
+
+      <details>
+        <summary><span class="tag err">Error</span> Deploy failed and now I have no SOL</summary>
+        <div class="d-body">
+          <p>Buffer accounts from the failed deploy are holding it. Close them and check what came back:</p>
+<pre><code>solana program close --buffers
+solana balance</code></pre>
+          <p>Do this <em>before</em> you retry the deploy, every time. Retrying without it is how people end up at zero with nothing deployed.</p>
+        </div>
+      </details>
+
+      <details>
+        <summary><span class="tag err">Error</span> Faucet says rate limited</summary>
+        <div class="d-body">
+          <p>There is a cooldown between requests. Waiting it out is the only real fix.</p>
+          <p>This is why checkpoint 4 tells you to fund your wallet at the start. If you are blocked and up against the deadline, post your address in the course Discord.</p>
+        </div>
+      </details>
+
+      <details>
+        <summary><span class="tag err">Error</span> GitHub sign-in refused at the faucet</summary>
+        <div class="d-body">
+          <p>The faucet verifies GitHub accounts, and very new accounts sometimes fail that check.</p>
+          <p>Ask a TA in the course Discord to send devnet SOL to your address directly. Post the output of <code>solana address</code>.</p>
+        </div>
+      </details>
+
+      <details>
+        <summary><span class="tag err">Error</span> 429 or timeout errors during deploy</summary>
+        <div class="d-body">
+          <p>The public devnet RPC is shared and overloaded. A deploy sends many transactions quickly, so it hits the limit before anything else does.</p>
+          <p>Switch to a free Helius devnet endpoint and retry:</p>
+<pre><code>solana config set --url &lt;your-helius-devnet-url&gt;</code></pre>
+          <p>Check <code>solana program close --buffers</code> first if the deploy already failed once.</p>
+        </div>
+      </details>
+
+      <details>
+        <summary><span class="tag err">Error</span> command not found: solana / anchor / avm</summary>
+        <div class="d-body">
+          <p>
+            PATH, essentially always. Either you have not opened a new terminal
+            since installing, or the export line went into the wrong shell
+            profile. Check with <code>echo $SHELL</code>, then append the export to
+            <code>.bashrc</code> or <code>.zshrc</code> — see the hint under checkpoint 2.
+          </p>
+          <p>On macOS, also check you do not have a Homebrew Rust shadowing the rustup one: <code>which -a rustc</code> should show only the <code>~/.cargo/bin</code> path.</p>
+        </div>
+      </details>
+
+      <details>
+        <summary><span class="tag err">Error</span> could not exec the linker cc — Permission denied (os error 13)</summary>
+        <div class="d-body">
+          <p>
+            Missing build dependencies on Linux or WSL, despite what the message
+            implies about permissions. Run the <code>apt-get install</code> block from
+            checkpoint 0, then retry the Anchor install. Do not prefix
+            <code>cargo</code> or <code>avm</code> with <code>sudo</code> — that creates
+            root-owned files in your cargo directory and a second, worse problem.
+          </p>
+        </div>
+      </details>
+
+      <details>
+        <summary><span class="tag err">Error</span> No such file or directory (os error 2)</summary>
+        <div class="d-body">
+          <p>Anchor tried to spawn a binary and will not say which. Ask it directly — whichever comes back empty is your answer:</p>
+<pre><code>which rustc cargo solana anchor node yarn cargo-build-sbf</code></pre>
+          <p>During <code>anchor test</code> specifically, this usually means Node or Yarn is missing, since the test template is TypeScript.</p>
+        </div>
+      </details>
+
+      <details>
+        <summary><span class="tag err">Error</span> anchor test fails with a port already in use</summary>
+        <div class="d-body">
+          <p>Something is already holding port 8899, so the new validator cannot bind.</p>
+          <p>
+            Two causes. Either a previous run crashed and left its validator
+            behind, or you started <code>solana-test-validator</code> yourself — for
+            example in the optional detour under checkpoint 6 — and never stopped it.
+          </p>
+          <p>Same fix for both:</p>
+<pre><code>pkill -f solana-test-validator
+anchor test</code></pre>
+        </div>
+      </details>
+
+      <details>
+        <summary><span class="tag err">Error</span> DeclaredProgramIdMismatch</summary>
+        <div class="d-body">
+          <p>The ID in <code>declare_id!</code> does not match the keypair the program was deployed under. Standard after a fresh clone or a <code>target/</code> wipe:</p>
+<pre><code>anchor keys sync
+anchor build
+anchor deploy</code></pre>
+        </div>
+      </details>
+
+      <details>
+        <summary><span class="tag err">Error</span> Account not found in the explorer</summary>
+        <div class="d-body">
+          <p>
+            You are looking at mainnet. Append <code>?cluster=devnet</code> to the URL,
+            or pick the cluster in the explorer's top-right dropdown. Anything
+            deployed by <code>anchor test</code> will not appear there at all — that
+            network only existed for the duration of the command.
+          </p>
+        </div>
+      </details>
+
+      <details>
+        <summary><span class="tag err">Error</span> solana airdrop fails / 429 Too Many Requests</summary>
+        <div class="d-body">
+          <p><code>solana airdrop</code> goes through the public devnet RPC, which rate limits by IP. A lecture hall on one wifi network hits that limit constantly.</p>
+          <p>Use <a href="https://faucet.solana.com">faucet.solana.com</a> signed in with GitHub instead, as checkpoint 4 describes. Ask once rather than repeatedly.</p>
+          <p>On localnet none of this applies — <code>solana airdrop 100</code> works instantly and as often as you like.</p>
+        </div>
+      </details>
+
+      <details>
+        <summary><span class="tag err">Error</span> Builds are unbearably slow on Windows</summary>
+        <div class="d-body">
+          <p>Your project is on <code>/mnt/c</code>. Every file read crosses from WSL to the Windows filesystem, which is roughly an order of magnitude slower. Move it:</p>
+<pre><code>cp -r /mnt/c/Users/you/hello_solana ~/
+cd ~/hello_solana &amp;&amp; anchor build</code></pre>
+        </div>
+      </details>
+
+      <details>
+        <summary><span class="tag err">Error</span> lock file version 4 requires -Znext-lockfile-bump</summary>
+        <div class="d-body">
+          <p>
+            Your Rust is older than the lockfile the project's dependencies
+            expect. <code>rustup update stable</code> fixes it. The general shape of
+            this class of error is a dependency requiring a newer toolchain than
+            you have — read the version it names before editing anything, and
+            use <code>cargo tree -i &lt;crate&gt;</code> to find which dependency pulled it in.
+          </p>
+        </div>
+      </details>
+    </section>
+
+    <!-- ============ RUN LOG ============ -->
+    <section class="cp" id="runlog">
+      <div class="cp-head">
+        <span class="cp-num" style="background:var(--green-wash);border-color:var(--green);color:var(--green)">★</span>
+        <div class="cp-titles">
+          <span class="cp-eyebrow">Not in the original guide</span>
+          <h2>Run log — Windows 11, native</h2>
+        </div>
+      </div>
+
+      <p>
+        All ten checkpoints, executed on one machine on 3 September 2026. The
+        guide assumes macOS, Linux, or WSL; this machine ran the whole
+        toolchain <strong>natively on Windows</strong>, with no WSL distro
+        installed. Eight checkpoints ran clean. Two broke.
+      </p>
+      <p>Checkpoint 9 asks you to write down what broke. This is that.</p>
+
+      <h4>Proof of work</h4>
+      <div class="evidence">
+        <div class="ev">
+          <div class="ev-label">Checkpoint 5 · transfer</div>
+          <div class="ev-val"><a href="https://explorer.solana.com/tx/2SaSh1axKzUtHBGqU4R8Erz1ApJJcK89GyhGjw4jpdCfzJqJMSkjZwhWqa3t8Wg8nFHPEpjeQyhvhkAWeYU6GGAN?cluster=devnet" target="_blank" rel="noopener">2SaSh1axKzUtHBGqU4R8Erz1ApJJcK89GyhGjw4jpdCfzJqJMSkjZwhWqa3t8Wg8nFHPEpjeQyhvhkAWeYU6GGAN</a></div>
+        </div>
+        <div class="ev">
+          <div class="ev-label">Checkpoint 8 · program ID</div>
+          <div class="ev-val"><a href="https://explorer.solana.com/address/4AxRhzD1QKxfJGsF4je1dpR4FxZsd2yHJCLUCZsfsvBh?cluster=devnet" target="_blank" rel="noopener">4AxRhzD1QKxfJGsF4je1dpR4FxZsd2yHJCLUCZsfsvBh</a></div>
+        </div>
+        <div class="ev">
+          <div class="ev-label">Checkpoint 7 · PDA (seed "counter")</div>
+          <div class="ev-val">GziSEfLP7Exk2E9PcALe8hfHYpvCgoejq99Wgd1j8Nyx · bump 255</div>
+        </div>
+        <div class="ev">
+          <div class="ev-label">Checkpoint 6 · test signature</div>
+          <div class="ev-val">3HaHCUCFnYH9C1sjEWYoZL3uApCx6Hq94jP7sa2Zx3gHEADx9TypEzXqoYzQzMgRs46zkBf2MVJ8mKQHzD1KiUhX</div>
+        </div>
+      </div>
+
+      <h4>What was already on the machine</h4>
+      <p>Checkpoints 1 and 2 were no-ops. The verify script found everything:</p>
+<pre data-lang="output"><code>ok   rustc   rustc <span class="c-num">1.89.0</span> (29483883e 2025-08-04)
+ok   cargo   cargo <span class="c-num">1.89.0</span> (c24e10642 2025-06-23)
+ok   solana  solana-cli <span class="c-num">3.1.13</span> (src:a568b955; feat:534737035, client:Agave)
+ok   anchor  anchor-cli <span class="c-num">0.32.1</span>
+ok   avm     avm <span class="c-num">0.32.1</span>
+ok   node    v<span class="c-num">24.13.0</span>
+ok   yarn    <span class="c-num">1.22.22</span></code></pre>
+      <p>
+        Two mismatches against checkpoint 3's baseline: Rust is 1.89, not 1.91,
+        and the CLI is 3.1.13, not 3.0.x. Neither caused a problem. Anchor was
+        on 1.0.0 and had to be pinned down with <code>avm use 0.32.1</code> — that
+        one <em>did</em> matter, exactly as checkpoint 3 says.
+      </p>
+
+      <h4>Checkpoint 4 · the config lied</h4>
+      <p>The saved config pointed at a keypair file that no longer existed:</p>
+<pre data-lang="output"><code>Keypair Path: C:\Users\arche\.config\solana\sayso-deployer.json
+<span class="c-com">Error: No default signer found</span></code></pre>
+      <p>
+        Checkpoint 4's whole lesson, landing early: <code>solana config get</code> is
+        the first thing to read, not the last. The faucet was never needed —
+        an existing devnet wallet on the machine already held 181.7 SOL.
+      </p>
+
+      <h4>Checkpoint 5 · the transaction, read back</h4>
+<pre data-lang="output"><code>Transaction executed in slot <span class="c-num">492312540</span>:
+  Account 0: srw- 35z7X59rtyts557Up1RAwpyYN7x2cFqcDc7RjPuNxFzr (fee payer)
+  Account 1: -rw- 5udor8A2VWgFxqYfyaF9fBDJNpwJvGcXptrNMTJshFxe
+  Account 2: -r-x 11111111111111111111111111111111
+  Instruction 0
+    Program:   11111111111111111111111111111111 (2)
+    Transfer { lamports: <span class="c-num">100000000</span> }
+  Status: Ok
+    Fee: <span class="c-num">0.000005</span>
+  Compute Units Consumed: <span class="c-num">150</span>
+Finalized</code></pre>
+      <p>
+        <code>srw-</code> and <code>-rw-</code> on those first two accounts is the up-front
+        account declaration the guide keeps pointing at — signer, writable,
+        read-only, all fixed before the instruction runs. Fee: 5,000 lamports,
+        exactly as documented.
+      </p>
+
+      <div class="note bad">
+        <span class="note-label">🔴 Break #1 — anchor init left the project half-built</span>
+        <p><code>anchor init hello_solana</code> exited 0 but printed <code>Error: program not found</code>, and only seven files landed. Missing: <code>package.json</code>, <code>tsconfig.json</code>, <code>tests/</code>, <code>migrations/</code>.</p>
+        <p>
+          <strong>Cause.</strong> Anchor shells out to the package manager to
+          finish the scaffold. That spawn failed, and Anchor reported it with the
+          OS's phrase for "executable not found" — nothing to do with a Solana
+          <em>program</em>. Two meanings of one word, in a single error message.
+        </p>
+        <p><strong>Fix.</strong> Wrote the four missing files by hand from the standard Anchor 0.32 template. Then yarn died on the network with <code>ESOCKETTIMEDOUT</code>, and <code>npm install --fetch-timeout=600000</code> got through.</p>
+      </div>
+
+      <h4>Checkpoint 6 · build ✅</h4>
+<pre data-lang="output"><code>Compiling hello_solana v0.1.0
+    Finished `test` profile in <span class="c-num">6m 00s</span></code></pre>
+      <p>Six minutes — inside the guide's 5-to-15 estimate. IDL and TypeScript types both generated, and <code>anchor keys sync</code> reported everything already in agreement.</p>
+
+      <div class="note bad">
+        <span class="note-label">🔴 Break #2 — the local validator cannot start on Windows</span>
+        <p><code>anchor test</code> reported <em>"Test validator does not look started"</em>. The ledger log had the real reason:</p>
+<pre data-lang="output"><code>Error: failed to start validator: Failed to create ledger at .anchor\test-ledger:
+io error: Error checking to unpack genesis archive: IO error: Access is denied. (os error 5)</code></pre>
+        <p>
+          Reproduced with <code>solana-test-validator</code> standalone in a clean
+          directory, so this is not an Anchor bug — the validator itself cannot
+          unpack its genesis archive on this filesystem. <strong>This is the wall
+          the guide's very first note warns about.</strong>
+        </p>
+        <p>Then a second, funnier failure while working around it:</p>
+<pre data-lang="output"><code>$ anchor test --skip-local-validator
+Windows Subsystem for Linux has no installed distributions.</code></pre>
+        <p>
+          <strong>Cause.</strong> Anchor runs its <code>[scripts] test</code> line through
+          <code>bash</code>. On Windows, <code>bash.exe</code> in <code>System32</code> is the
+          <strong>WSL launcher</strong>, not a shell. Anchor was never running the
+          test — it was trying to open Ubuntu.
+        </p>
+        <p><strong>Fix.</strong> Ran the identical suite directly, against the devnet-deployed program:</p>
+<pre><code>ANCHOR_PROVIDER_URL="https://api.devnet.solana.com" \
+ANCHOR_WALLET="~/.config/solana/id.json" \
+npx ts-mocha -p ./tsconfig.json -t 1000000 "tests/**/*.ts"</code></pre>
+<pre data-lang="output"><code>  hello_solana
+Your transaction signature 3HaHCUCFnYH9C1sjEWYoZL3uApCx6Hq94jP7sa2Zx3gHEADx9TypEzXqoYzQzMgRs46zkBf2MVJ8mKQHzD1KiUhX
+    <span class="c-str">✔ Is initialized!</span> (1541ms)
+
+  <span class="c-str">1 passing</span> (2s)</code></pre>
+        <p>
+          One passing test — checkpoint 6's target output, reached on devnet
+          rather than localnet. The proper fix is checkpoint 0's Windows block:
+          <code>wsl --install</code> from an elevated PowerShell, then reboot.
+        </p>
+      </div>
+
+      <h4>Checkpoint 7 · PDA ✅</h4>
+      <p>Same seed twice, same address. Seed <code>vault</code>, completely different address. And the point of the checkpoint:</p>
+<pre data-lang="output"><code>$ solana account GziSEfLP7Exk2E9PcALe8hfHYpvCgoejq99Wgd1j8Nyx
+<span class="c-com">Error: AccountNotFound</span></code></pre>
+      <p>Both derivations returned bump <strong>255</strong> — off the curve on the first byte tried. That is luck, not a rule.</p>
+
+      <h4>Checkpoint 8 · deploy ✅</h4>
+<pre data-lang="output"><code>Program Id: 4AxRhzD1QKxfJGsF4je1dpR4FxZsd2yHJCLUCZsfsvBh
+Owner: BPFLoaderUpgradeab1e11111111111111111111111
+ProgramData Address: 6PWVUHD8ATqjXJVwjrqJQbxP172F3ug8p66kRWbJ1USd
+Data Length: <span class="c-num">180376</span> (0x2c098) bytes
+Balance: <span class="c-num">1.143416817</span> SOL</code></pre>
+
+      <div class="note warn">
+        <span class="note-label">A buffer survived a successful deploy</span>
+        <p>
+          The guide frames <code>solana program close --buffers</code> as
+          failure-recovery. But a buffer holding <strong>1.55 SOL</strong> was
+          sitting there after a deploy that printed <code>Deploy success</code>.
+        </p>
+        <p>Balance went 190.51 → 192.07 SOL after closing it. Run it after <em>every</em> deploy, not just failed ones.</p>
+      </div>
+
+      <h4>Verdict on running this natively on Windows</h4>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Checkpoint</th><th>Native Windows</th></tr></thead>
+          <tbody>
+            <tr><td class="num">0 · Prepare OS</td><td>⚠️ no WSL distro; native tools work anyway</td></tr>
+            <tr><td class="num">1 · Install everything</td><td>✅ already present</td></tr>
+            <tr><td class="num">2 · Manual path</td><td>✅ not needed</td></tr>
+            <tr><td class="num">3 · Pin versions</td><td>✅ <code>avm use 0.32.1</code></td></tr>
+            <tr><td class="num">4 · Wallet and config</td><td>✅</td></tr>
+            <tr><td class="num">5 · Send a transaction</td><td>✅</td></tr>
+            <tr><td class="num">6 · First project</td><td>⚠️ builds and tests, but only against devnet</td></tr>
+            <tr><td class="num">7 · Derive a PDA</td><td>✅</td></tr>
+            <tr><td class="num">8 · Deploy to devnet</td><td>✅</td></tr>
+            <tr><td class="num">9 · Check your work</td><td>✅</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="note win">
+        <span class="note-label">Point five, answered</span>
+        <p>
+          Two things broke, and neither error message named its real cause.
+          <code>anchor init</code> said <em>program not found</em> when it meant
+          <em>the package-manager executable is missing</em>. <code>anchor test</code>
+          said <em>WSL has no installed distributions</em> when it meant
+          <em>Anchor runs its test script through bash, and on Windows bash.exe is
+          the WSL launcher</em>.
+        </p>
+        <p>
+          In both cases the fix was upstream of the message, in a tool the
+          message never mentioned. That is checkpoint 1's advice in practice:
+          <strong>name the tool first.</strong> Neither failure was Anchor's, and
+          neither was Solana's.
+        </p>
+      </div>
+
+      <p class="muted">
+        Everything that talks to a <em>remote</em> network works natively on
+        Windows. Everything that needs a <em>local</em> network does not.
+        Install WSL before the term starts.
+      </p>
+    </section>
+
+    <p class="foot">
+      Guide 01 · never commit a keypair · commands verified against solana.com/docs, August 2026<br />
+      Personal study remake · run log added 3 September 2026
+    </p>
+
+  </article>
+</div>
+
+<button class="totop" id="totop" type="button" aria-label="Back to top">↑</button>
+
+<script src="./app.js"></script>
+</body>
+</html>
